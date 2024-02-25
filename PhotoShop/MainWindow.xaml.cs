@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,6 +21,8 @@ namespace PhotoShop
     /// </summary>
     public partial class MainWindow : Window
     {
+        private WriteableBitmap? originalBitmap { get; set; }
+        private List<Func<WriteableBitmap, WriteableBitmap>> filtersToApply = new List<Func<WriteableBitmap, WriteableBitmap>>();
         public MainWindow()
         {
             InitializeComponent();
@@ -33,8 +36,32 @@ namespace PhotoShop
             {
                 string imgPath = dialog.FileName;
                 //rendering the img
-                firstWindowImage.Source = new BitmapImage(new Uri(imgPath));
+                var tmpBitmap = new BitmapImage(new Uri(imgPath));
+                originalBitmap = new WriteableBitmap(tmpBitmap);
+                firstWindowImage.Source = originalBitmap;
             }
+        }
+
+        private void InversionButtonClick(object sender, RoutedEventArgs e)
+        {
+            //checking if bitmap is opened
+            if (originalBitmap == null)
+            {
+                MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                InversionToggle.IsChecked = false;
+                return;
+            }
+
+            if(InversionToggle.IsChecked == true)
+            {
+                filtersToApply.Add(FunctionFilters.Inversion);
+            }
+            else if(InversionToggle.IsChecked == false)
+            {
+                filtersToApply.Remove(FunctionFilters.Inversion);
+            }
+                
+            secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
     }
 }

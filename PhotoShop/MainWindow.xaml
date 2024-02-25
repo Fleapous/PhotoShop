@@ -36,7 +36,7 @@
 
         <!-- Tool Bar -->
         <ToolBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
-            
+            <ToggleButton x:Name="InversionToggle" Content="Inversion" Click="InversionButtonClick"/>
         </ToolBar>
 
         <!-- Main Window 1 -->
@@ -46,6 +46,7 @@
 
         <!-- Main Window 2 -->
         <Border Grid.Row="2" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+            <Image x:Name="secondWindowImage" Grid.Row="2" Grid.Column="1" Stretch="Uniform"/>
         </Border>
     </Grid>
 </Window>
