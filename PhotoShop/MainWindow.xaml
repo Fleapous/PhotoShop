@@ -37,6 +37,9 @@
         <!-- Tool Bar -->
         <ToolBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
             <ToggleButton x:Name="InversionToggle" Content="Inversion" Click="InversionButtonClick"/>
+            <ToggleButton x:Name="BrightnessToggle" Content="Brightness" Click="BrightnessButtonClick"/>
+            <ToggleButton x:Name="Contrasttoggle" Content="Contrast" Click="ContrastButtonClick"/>
+            <ToggleButton x:Name="GammaToggle" Content="Gamma" Click="GammaButtonClick"/>
         </ToolBar>
 
         <!-- Main Window 1 -->
