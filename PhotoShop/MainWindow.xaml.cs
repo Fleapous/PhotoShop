@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -19,13 +21,18 @@ namespace PhotoShop
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// 
     public partial class MainWindow : Window
     {
         private WriteableBitmap? originalBitmap { get; set; }
         private List<Func<WriteableBitmap, WriteableBitmap>> filtersToApply = new List<Func<WriteableBitmap, WriteableBitmap>>();
+        public ObservableCollection<Stack> filterStacks { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
+            filterStacks = new ObservableCollection<Stack>();
+            DataContext = this;
         }
 
         private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
@@ -48,18 +55,11 @@ namespace PhotoShop
             if (originalBitmap == null)
             {
                 MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                InversionToggle.IsChecked = false;
                 return;
             }
 
-            if(InversionToggle.IsChecked == true)
-            {
-                filtersToApply.Add(FunctionFilters.Inversion);
-            }
-            else if(InversionToggle.IsChecked == false)
-            {
-                filtersToApply.Remove(FunctionFilters.Inversion);
-            }
+            filterStacks.Add(new Stack("Inversion Filter"));
+            filtersToApply.Add(FunctionFilters.Inversion);
                 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -70,18 +70,11 @@ namespace PhotoShop
             if (originalBitmap == null)
             {
                 MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                BrightnessToggle.IsChecked = false;
                 return;
             }
-
-            if (BrightnessToggle.IsChecked == true)
-            {
-                filtersToApply.Add(FunctionFilters.Brightness);
-            }
-            else if (BrightnessToggle.IsChecked == false)
-            {
-                filtersToApply.Remove(FunctionFilters.Brightness);
-            }
+            filterStacks.Add(new Stack("Brightness Filter"));
+            filtersToApply.Add(FunctionFilters.Brightness);
+            
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -92,18 +85,11 @@ namespace PhotoShop
             if (originalBitmap == null)
             {
                 MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Contrasttoggle.IsChecked = false;
                 return;
             }
-
-            if (Contrasttoggle.IsChecked == true)
-            {
-                filtersToApply.Add(FunctionFilters.Contrast);
-            }
-            else if (Contrasttoggle.IsChecked == false)
-            {
-                filtersToApply.Remove(FunctionFilters.Contrast);
-            }
+            filterStacks.Add(new Stack("Contrast Filter"));
+            filtersToApply.Add(FunctionFilters.Contrast);
+            
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -114,20 +100,40 @@ namespace PhotoShop
             if (originalBitmap == null)
             {
                 MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                GammaToggle.IsChecked = false;
                 return;
             }
-
-            if (GammaToggle.IsChecked == true)
-            {
-                filtersToApply.Add(FunctionFilters.Gamma);
-            }
-            else if (GammaToggle.IsChecked == false)
-            {
-                filtersToApply.Remove(FunctionFilters.Ga);
-            }
-
+            filterStacks.Add(new Stack("Gamma Filter"));
+            filtersToApply.Add(FunctionFilters.Gamma);
+            
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
+        }
+
+        private void DeleteButtonClick(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+            var id = (Guid)button.Tag;
+            var item = filterStacks.FirstOrDefault(f => f.UniqueIdentifier == id);
+            if (item == null)
+                return;
+            int index = filterStacks.IndexOf(item);
+            if(index < filtersToApply.Count && originalBitmap != null)
+            {
+                filtersToApply.RemoveAt(index);
+                filterStacks.RemoveAt(index);
+                secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
+            }
+        }
+    }
+
+    public class Stack
+    {
+        public string Name { get; set; }
+        public Guid UniqueIdentifier { get; set; }
+
+        public Stack(string name)
+        {
+            Name = name;
+            UniqueIdentifier = Guid.NewGuid();
         }
     }
 }

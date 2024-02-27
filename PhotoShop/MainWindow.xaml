@@ -18,38 +18,91 @@
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <!-- Main Window 1 -->
+            <!-- Original Image, Window 1 -->
+            <ColumnDefinition Width="Auto"/>
+            <!-- Grid Splitter 1 -->
             <ColumnDefinition Width="*"/>
-            <!-- Main Window 2 -->
+            <!-- Edited Image, Window 2 -->
+            <ColumnDefinition Width="Auto"/>
+            <!-- Grid Splitter 2 -->
+            <ColumnDefinition Width="*"/>
+            <!-- Action, Window 3 -->
         </Grid.ColumnDefinitions>
 
         <!-- Menu Bar -->
-        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5">
             <MenuItem Header="_File">
                 <MenuItem Header="_Open" Click="OpenMenuItem_Click"/>
-                
             </MenuItem>
-            <!--<MenuItem Header="_Edit">
-
-            </MenuItem>-->
         </Menu>
 
         <!-- Tool Bar -->
-        <ToolBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
-            <ToggleButton x:Name="InversionToggle" Content="Inversion" Click="InversionButtonClick"/>
-            <ToggleButton x:Name="BrightnessToggle" Content="Brightness" Click="BrightnessButtonClick"/>
-            <ToggleButton x:Name="Contrasttoggle" Content="Contrast" Click="ContrastButtonClick"/>
-            <ToggleButton x:Name="GammaToggle" Content="Gamma" Click="GammaButtonClick"/>
+        <ToolBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5">
+            <TabControl>
+                <TabItem Header="Filters">
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="InversionToggle" Content="Inversion" Click="InversionButtonClick"/>
+                        <Button x:Name="BrightnessToggle" Content="Brightness" Click="BrightnessButtonClick"/>
+                        <Button x:Name="Contrasttoggle" Content="Contrast" Click="ContrastButtonClick"/>
+                        <Button x:Name="GammaToggle" Content="Gamma" Click="GammaButtonClick"/>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Convolution Filters">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Filter1"/>
+                        <Button Content="Filter2"/>
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
         </ToolBar>
 
-        <!-- Main Window 1 -->
+        <!--Original Image, Window 1 -->
         <Border Grid.Row="2" Grid.Column="0" BorderBrush="Black" BorderThickness="1">
-            <Image x:Name="firstWindowImage" Grid.Row="2" Grid.Column="1" Stretch="Uniform"/>
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <Image x:Name="firstWindowImage" Grid.Row="2" Grid.Column="0" Stretch="None"/>
+            </ScrollViewer>
         </Border>
 
-        <!-- Main Window 2 -->
-        <Border Grid.Row="2" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
-            <Image x:Name="secondWindowImage" Grid.Row="2" Grid.Column="1" Stretch="Uniform"/>
+        <!-- Grid Splitter 1 -->
+        <GridSplitter Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="AliceBlue" ShowsPreview="True" Width="5"/>
+
+        <!-- Edited Image, Window 2 -->
+        <Border Grid.Row="2" Grid.Column="2" BorderBrush="Black" BorderThickness="1">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
+                <Image x:Name="secondWindowImage" Grid.Row="2" Grid.Column="2"  Stretch="None"/>
+            </ScrollViewer>
         </Border>
+
+        <!-- Grid Splitter 2 -->
+        <GridSplitter Grid.Row="2" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="AliceBlue" ShowsPreview="True" Width="5"/>
+
+        <!-- Action Box, Window 3 -->
+        <Border Grid.Row="2" Grid.Column="4" BorderBrush="Black" Background="AliceBlue" BorderThickness="1">
+            <TabControl>
+                <!-- Filter Stack -->
+                <TabItem Header="FilterStack">
+                    <ListBox Background="AliceBlue"
+                             x:Name="FilterStack" 
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                             ItemsSource="{Binding filterStacks}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <!-- TextBlock to display the name of the item -->
+                                    <TextBlock Text="{Binding Name}"/>
+
+                                    <!-- Button to delete the item -->
+                                    <Button Content="Delete" 
+                                            Click="DeleteButtonClick" 
+                                            Tag="{Binding UniqueIdentifier}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </TabItem>
+            </TabControl>
+        </Border>
+
     </Grid>
 </Window>

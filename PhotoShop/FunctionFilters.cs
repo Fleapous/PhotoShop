@@ -13,8 +13,6 @@ namespace PhotoShop
 {
     internal class FunctionFilters
     {
-        private delegate byte FilterLogic(byte channel);
-
         private static byte InversionLogic(byte pixel)
         {
             return (byte)(255 - pixel);
@@ -54,7 +52,7 @@ namespace PhotoShop
             return ApplyLogic(bitmapIn, GammaLogic);
         }
 
-        private static WriteableBitmap ApplyLogic(WriteableBitmap BitmapIn, FilterLogic filterLogic)
+        private static WriteableBitmap ApplyLogic(WriteableBitmap BitmapIn, Func<byte, byte> filterLogic)
         {
             int pxWidth = (int)BitmapIn.Width;
             int pxHeight = (int)BitmapIn.Height;
