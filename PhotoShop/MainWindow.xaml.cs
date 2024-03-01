@@ -25,7 +25,7 @@ namespace PhotoShop
     public partial class MainWindow : Window
     {
         private WriteableBitmap? originalBitmap { get; set; }
-        private List<Func<WriteableBitmap, WriteableBitmap>> filtersToApply = new List<Func<WriteableBitmap, WriteableBitmap>>();
+        private List<IFilter> filtersToApply = new List<IFilter>();
         public ObservableCollection<Stack> filterStacks { get; set; }
 
         public MainWindow()
@@ -59,7 +59,7 @@ namespace PhotoShop
             }
 
             filterStacks.Add(new Stack("Inversion Filter"));
-            filtersToApply.Add(FunctionFilters.Inversion);
+            filtersToApply.Add(new FunctionFilter(pixel => (Byte)(255 - pixel)));
                 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -73,7 +73,7 @@ namespace PhotoShop
                 return;
             }
             filterStacks.Add(new Stack("Brightness Filter"));
-            filtersToApply.Add(FunctionFilters.Brightness);
+            filtersToApply.Add(new FunctionFilter(pixel => (byte)Math.Clamp(pixel + 30, 0, 255)));
             
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
@@ -88,7 +88,7 @@ namespace PhotoShop
                 return;
             }
             filterStacks.Add(new Stack("Contrast Filter"));
-            filtersToApply.Add(FunctionFilters.Contrast);
+            filtersToApply.Add(new FunctionFilter(pixel => (byte)Math.Clamp(pixel * 3, 0, 255)));
             
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
@@ -103,8 +103,9 @@ namespace PhotoShop
                 return;
             }
             filterStacks.Add(new Stack("Gamma Filter"));
-            filtersToApply.Add(FunctionFilters.Gamma);
-            
+            filtersToApply.Add(new FunctionFilter(pixel => (byte)Math.Clamp(Math.Pow(pixel / 255.0, 2) * 255.0, 0, 255)));
+
+
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
 
