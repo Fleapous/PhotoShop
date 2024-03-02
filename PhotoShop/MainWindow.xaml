@@ -49,8 +49,10 @@
                 </TabItem>
                 <TabItem Header="Convolution Filters">
                     <StackPanel Orientation="Horizontal">
-                        <Button Content="Filter1"/>
-                        <Button Content="Filter2"/>
+                        <Button x:Name="BlurButton" Content="Blur" Click="BlurButtonClick"/>
+                        <Button x:Name="GaussianBlurButton" Content="GaussianBlur" Click="GaussianBlurButtonClick"/>
+                        <Button x:Name="SharpnessButton" Content="Sharpness" Click="SharpnessButtonClick"/>
+                        <Button x:Name="EdgeDetectButton" Content="EdgeDetect" Click="EdgeDetectButtonClick"/>
                     </StackPanel>
                 </TabItem>
             </TabControl>

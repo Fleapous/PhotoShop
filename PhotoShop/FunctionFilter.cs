@@ -9,12 +9,12 @@ using System.Windows;
 namespace PhotoShop
 {
     //class for function filters
-    public delegate byte FilterLogic(byte logic);
+    public delegate byte FilterLogicDelegate(byte logic);
     public class FunctionFilter : IFilter
     {
-        private readonly FilterLogic filterLogic;
+        private readonly FilterLogicDelegate filterLogic;
 
-        public FunctionFilter(FilterLogic filterLogic)
+        public FunctionFilter(FilterLogicDelegate filterLogic)
         {
             this.filterLogic = filterLogic;
         }
