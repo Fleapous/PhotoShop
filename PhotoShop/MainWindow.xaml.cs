@@ -79,17 +79,27 @@ namespace PhotoShop
                 return;
             //find the index 
             currentFilterIndex = filterStacks.IndexOf(item);
-            
+            XOffsetTextBox.Text = filtersToApply[currentFilterIndex].XOffset.ToString();
+            YOffsetTextBox.Text = filtersToApply[currentFilterIndex].YOffset.ToString();
 
 
             if (filtersToApply[currentFilterIndex].Kernel == null)
             {
+                //hide conv ettings
+                ConvolutionalSettingsPanel.Visibility = Visibility.Collapsed;
+                FunctionalSettingsPanel.Visibility = Visibility.Visible;
+
                 KernelGrid.Children.Clear();
                 KernelGrid.RowDefinitions.Clear();
                 KernelGrid.ColumnDefinitions.Clear();
+                
             }
             else
             {
+                //hide functunal settings
+                ConvolutionalSettingsPanel.Visibility = Visibility.Visible;
+                FunctionalSettingsPanel.Visibility = Visibility.Collapsed;
+
                 //populate x y values
                 int xValue = filtersToApply[currentFilterIndex].Kernel.GetLength(0);
                 int yValue = filtersToApply[currentFilterIndex].Kernel.GetLength(1);
@@ -99,6 +109,7 @@ namespace PhotoShop
 
                 //load the kernel
                 ConstructKernelGrid(filtersToApply[currentFilterIndex]);
+                
             }
                 
         }
@@ -109,11 +120,12 @@ namespace PhotoShop
                 secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
 
-        private void KernelDims_LostFocus(object sender, RoutedEventArgs e)
+        private void GenerateNewKernel_Click(object sender, RoutedEventArgs e)
         {
-            TextBox textBox = (TextBox)sender;
-            string selectedString = textBox.Text;
-            string[] parts = selectedString.Split(',');
+            //kernel parameters 
+            string[] parts = KernelDims.Text.Split(',');
+
+
 
             if (parts.Length != 2)
             {
@@ -136,12 +148,50 @@ namespace PhotoShop
                     //create the new kerenel with new values
                     string filterType = filterStacks[currentFilterIndex].Name;
                     int[,] newKernel = new int[xValue, yValue];
-                    newKernel = ConstructKernelFromType(filterType, xValue, yValue);
-                    filtersToApply[currentFilterIndex].Kernel = newKernel;
+                    double sum = 1;
+                    double sigma;
+                    if (!double.TryParse(sigmaValue.Text, out sigma))
+                        MessageBox.Show("Invalid input for sigma. Please enter a valid number.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                    int xOffset = 0;
+                    int yOffset = 0;
+                    if (!int.TryParse(XOffsetTextBox.Text, out xOffset) || !int.TryParse(YOffsetTextBox.Text, out yOffset))
+                        MessageBox.Show("Invalid input for offset value. Please enter a valid number.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                    newKernel = ConstructKernelFromType(filterType, xValue, yValue, out sum, sigma);
+
+                    ConvLogicDelegate newTransformation = (r, g, b) => {
+                        double newR = Math.Clamp((int)r / sum, 0, 255);
+                        double newG = Math.Clamp((int)g / sum, 0, 255);
+                        double newB = Math.Clamp((int)b / sum, 0, 255);
+                        return ((byte)newR, (byte)newG, (byte)newB);
+                    };
+
+                    //assighn new settigns to the edited filter
+                    filtersToApply[currentFilterIndex] = new ConvolutionalFilter(newKernel, newTransformation, xOffset, yOffset);
+
+                    //re construct kernel grid from new kernel settings 
                     ConstructKernelGrid(filtersToApply[currentFilterIndex]);
 
                 }
             }
+        }
+        private void FilterSetting_LostFocus(object sender, RoutedEventArgs e)
+        {
+            double value;
+            if (!double.TryParse(FilterSetting.Text, out value))
+                MessageBox.Show("Invalid input for filter function value. Please enter a valid number.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+            int xOffset = 0;
+            int yOffset = 0;
+            if(!int.TryParse(XOffsetTextBox.Text, out xOffset) || !int.TryParse(YOffsetTextBox.Text, out yOffset))
+                MessageBox.Show("Invalid input for offset value. Please enter a valid number.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            filtersToApply[currentFilterIndex] = ConstructFunctionFilterFromType(filterStacks[currentFilterIndex].Name, value, xOffset, yOffset);
+        }
+
+        private void SaveFilterClick(object sender, RoutedEventArgs e)
+        {
+            SerializeFilter(filtersToApply[currentFilterIndex], filterStacks[currentFilterIndex].Name);
         }
     }
 

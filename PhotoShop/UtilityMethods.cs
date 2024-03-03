@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -57,17 +60,19 @@ namespace PhotoShop
             }
         }
 
-        private int[,] ConstructKernelFromType(string type, int x, int y, double sigma = 0)
+        private int[,] ConstructKernelFromType(string type, int x, int y, out double sum, double sigma = 0)
         {
             int[,] kernel = new int[x,y];
-            double sum = 0.0;
+            sum = 1;
             switch (type)
             {
                 case "Blur Filter":
+                    sum = 0.0;
                     kernel = ConvolutionalFilter.MakeBlurKernel(x, y, out sum);
                     break;
                 case "Gaussian Blur Filter":
-                    kernel = ConvolutionalFilter.MakeGaussKernel(x, sigma, out sum);
+                    sum = 0.0;
+                    kernel = ConvolutionalFilter.MakeGaussKernel(x/2, sigma, out sum);
                     break;
                 case "Sharpness Filter":
                     kernel = ConvolutionalFilter.MakeSharpnessKernel(x, y);
@@ -80,6 +85,108 @@ namespace PhotoShop
                     break;
             }
             return kernel;
+        }
+
+        private FunctionFilter ConstructFunctionFilterFromType(string type, double value, int xOffset, int yOffset)
+        {
+            switch (type)
+            {
+                case "Inversion Filter":
+                    return new FunctionFilter(pixel => (Byte)(255 - pixel), xOffset, yOffset);
+                case "Brightness Filter":
+                    return new FunctionFilter(pixel => (byte)Math.Clamp(pixel + value, 0, 255), xOffset, yOffset);
+                case "Contrast Filter":
+                    return new FunctionFilter(pixel => (byte)Math.Clamp(pixel * value, 0, 255), xOffset, yOffset);
+                case "Gamma Filter":
+                    return new FunctionFilter(pixel => (byte)Math.Clamp(Math.Pow(pixel / 255.0, value) * 255.0, 0, 255), xOffset, yOffset);
+                default:
+                    return new FunctionFilter(pixel => (Byte)(255 - pixel), xOffset, yOffset);
+            }
+        }
+
+        public void SerializeFilter(IFilter filter, string name, double value = 0)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
+            saveFileDialog.FilterIndex = 1;
+            saveFileDialog.RestoreDirectory = true;
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                object serializableData;
+
+                if (filter is ConvolutionalFilter convolutionalFilter)
+                {
+ 
+
+                    serializableData = new
+                    {
+                        type = "ConvolutionalFilter",
+                        name = name,
+                        convolutionalFilter.XOffset,
+                        convolutionalFilter.YOffset,
+                        Kernel = SerializeKernel(convolutionalFilter.Kernel)
+                    };
+                }
+                else if (filter is FunctionFilter functionFilter)
+                {
+                    serializableData = new
+                    {
+                        type = "FunctionFilter",
+                        name = name,
+                        functionFilter.XOffset,
+                        functionFilter.YOffset,
+                        value = value
+                    };
+                }
+                else
+                {
+                    throw new ArgumentException("filter error");
+                }
+
+                string jsonString = JsonSerializer.Serialize(serializableData, new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                });
+
+                File.WriteAllText(saveFileDialog.FileName, jsonString);
+            }
+        }
+        public int[][] SerializeKernel(int[,] array)
+        {
+            int row = array.GetLength(0);
+            int cols = array.GetLength(1);
+
+            int[][] serializedArray = new int[row][];
+
+            for (int i = 0; i < row; i++)
+            {
+                serializedArray[i] = new int[cols];
+                for (int j = 0; j < cols; j++)
+                {
+                    serializedArray[i][j] = array[i, j];
+                }
+            }
+
+            return serializedArray;
+        }
+
+        public int[,] DeSerializeKernel(int[][] SerializedArray)
+        {
+            int row = SerializedArray.Length;
+            int col = SerializedArray[0].Length;
+
+            int[,] array = new int[row, col];
+
+            for (int i = 0; i < row; i++)
+            {
+                for (int j = 0; j < col; j++)
+                {
+                    array[i, j] = SerializedArray[i][j];
+                }
+            }
+
+            return array;
         }
 
 

@@ -31,7 +31,7 @@ namespace PhotoShop
                 return ((byte)newR, (byte)newG, (byte)newB);
             };
 
-            filtersToApply.Add(new ConvolutionalFilter(blurKernel, blurTransformation));
+            filtersToApply.Add(new ConvolutionalFilter(blurKernel, blurTransformation, 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -56,7 +56,7 @@ namespace PhotoShop
                 return ((byte)newR, (byte)newG, (byte)newB);
             };
 
-            filtersToApply.Add(new ConvolutionalFilter(gaussBlurKernel, gaussBlurTransformation));
+            filtersToApply.Add(new ConvolutionalFilter(gaussBlurKernel, gaussBlurTransformation, 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -80,7 +80,7 @@ namespace PhotoShop
                 return ((byte)newR, (byte)newG, (byte)newB);
             };
 
-            filtersToApply.Add(new ConvolutionalFilter(SharpnessKernel, SharpnessTranformation));
+            filtersToApply.Add(new ConvolutionalFilter(SharpnessKernel, SharpnessTranformation, 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -104,7 +104,7 @@ namespace PhotoShop
                 return ((byte)newR, (byte)newG, (byte)newB);
             };
 
-            filtersToApply.Add(new ConvolutionalFilter(EdgeDetectKernel, EdgeDetectTranformation));
+            filtersToApply.Add(new ConvolutionalFilter(EdgeDetectKernel, EdgeDetectTranformation, 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -119,7 +119,7 @@ namespace PhotoShop
             }
 
             filterStacks.Add(new Stack("Inversion Filter"));
-            filtersToApply.Add(new FunctionFilter(pixel => (Byte)(255 - pixel)));
+            filtersToApply.Add(new FunctionFilter(pixel => (Byte)(255 - pixel), 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -133,7 +133,7 @@ namespace PhotoShop
                 return;
             }
             filterStacks.Add(new Stack("Brightness Filter"));
-            filtersToApply.Add(new FunctionFilter(pixel => (byte)Math.Clamp(pixel + 30, 0, 255)));
+            filtersToApply.Add(new FunctionFilter(pixel => (byte)Math.Clamp(pixel + 30, 0, 255), 0, 0));
 
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
@@ -148,7 +148,7 @@ namespace PhotoShop
                 return;
             }
             filterStacks.Add(new Stack("Contrast Filter"));
-            filtersToApply.Add(new FunctionFilter(pixel => (byte)Math.Clamp(pixel * 3, 0, 255)));
+            filtersToApply.Add(new FunctionFilter(pixel => (byte)Math.Clamp(pixel * 3, 0, 255), 0, 0));
 
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
@@ -163,7 +163,7 @@ namespace PhotoShop
                 return;
             }
             filterStacks.Add(new Stack("Gamma Filter"));
-            filtersToApply.Add(new FunctionFilter(pixel => (byte)Math.Clamp(Math.Pow(pixel / 255.0, 2) * 255.0, 0, 255)));
+            filtersToApply.Add(new FunctionFilter(pixel => (byte)Math.Clamp(Math.Pow(pixel / 255.0, 2) * 255.0, 0, 255), 0, 0));
 
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);

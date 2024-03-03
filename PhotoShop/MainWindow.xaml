@@ -34,6 +34,9 @@
             <MenuItem Header="_File">
                 <MenuItem Header="_Open" Click="OpenMenuItem_Click"/>
             </MenuItem>
+            <MenuItem Header="Filters">
+                <MenuItem Header="Save" Click="SaveFilterClick"/>
+            </MenuItem>
         </Menu>
 
         <!-- Tool Bar -->
@@ -111,11 +114,35 @@
             <!--Kernel and editing section-->
             <Border Grid.Row="2" BorderBrush="Black" Background="Azure" BorderThickness="1">
                 <StackPanel>
-                    <Label x:Name="FilterNameLabel" Content="filter name" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                    <Button x:Name="GenerateButton" Content="Generate" HorizontalAlignment="Left" VerticalAlignment="Top" Click="GenerateButtonClick"/>
 
-                    <TextBox x:Name="KernelDims" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Width="30" TextAlignment="Center" LostFocus="KernelDims_LostFocus"/>
-               
+
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <Label x:Name="FilterNameLabel" Content="filter name" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Button x:Name="GenerateButton" Content="Generate" HorizontalAlignment="Left" VerticalAlignment="Top" Click="GenerateButtonClick"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <StackPanel Margin="5">
+                            <Label Content="X Offset:"/>
+                            <TextBox x:Name="XOffsetTextBox" Width="50"/>
+                        </StackPanel>
+                        <StackPanel Margin="5">
+                            <Label Content="Y Offset:"/>
+                            <TextBox x:Name="YOffsetTextBox" Width="50"/>
+                        </StackPanel>
+                    </StackPanel>
+
+
+                    <StackPanel x:Name="ConvolutionalSettingsPanel" Orientation="Horizontal" Margin="5" Visibility="Collapsed">
+                        <TextBox x:Name="KernelDims" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center"/>
+                        <TextBox x:Name="sigmaValue" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center"  Margin="10,0,0,0"/>
+                        <Button x:Name="GenerateNewKernel" Content="kernel" HorizontalAlignment="left" VerticalAlignment="Top" Margin="5" Width="50" Click="GenerateNewKernel_Click"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="FunctionalSettingsPanel" Orientation="Horizontal" Margin="5" Visibility="Collapsed">
+                        <TextBox x:Name="FilterSetting" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center" LostFocus="FilterSetting_LostFocus"/>
+                        
+                    </StackPanel>
 
                     <Grid x:Name="KernelGrid" HorizontalAlignment="Center" Margin="5"/>
                 </StackPanel>

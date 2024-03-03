@@ -11,5 +11,7 @@ namespace PhotoShop
     {
         WriteableBitmap Apply(WriteableBitmap In);
         int[,]? Kernel { get; set; }
+        int XOffset { get; set; }
+        int YOffset { get; set; }
     }
 }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using System.Xml.Linq;
 
 namespace PhotoShop
 {
@@ -15,12 +16,17 @@ namespace PhotoShop
     public class ConvolutionalFilter : IFilter
     {
         public int[,]? Kernel { get; set; }
+        public int XOffset { get; set; }
+        public int YOffset { get; set; }
+
         private readonly ConvLogicDelegate transformation;
 
-        public ConvolutionalFilter(int[,] kernel, ConvLogicDelegate transformation)
+        public ConvolutionalFilter(int[,] kernel, ConvLogicDelegate transformation, int xOffset = 0, int yOffset = 0)
         {
             this.Kernel = kernel;
             this.transformation = transformation;
+            this.XOffset = xOffset;
+            this.YOffset = yOffset;
         }
 
         public static int[,] MakeBlurKernel(int height, int width, out double sum)
@@ -103,35 +109,51 @@ namespace PhotoShop
 
             return kernel;
         }
-       
+
         public WriteableBitmap Apply(WriteableBitmap bitmapIn)
         {
             int width = (int)bitmapIn.Width;
             int height = (int)bitmapIn.Height;
-            WriteableBitmap paddedBitmap = AddPadding(bitmapIn, 1);
+            int kernelWidth = Kernel.GetLength(1);
+            int kernelHeight = Kernel.GetLength(0);
+
+            // Pad the input bitmap to accommodate the kernel
+            WriteableBitmap paddedBitmap = AddPadding(bitmapIn, kernelWidth / 2);
+
             // Apply convolution operation
             WriteableBitmap result = new WriteableBitmap(width, height, bitmapIn.DpiX, bitmapIn.DpiY, bitmapIn.Format, bitmapIn.Palette);
-            for (int y = 1; y < height - 1; y++)
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 1; x < width - 1; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    double red = 0, green = 0, blue = 0;
-                    for (int j = -1; j <= 1; j++)
+                    if (x < XOffset || y < YOffset)
                     {
-                        for (int i = -1; i <= 1; i++)
-                        {
-                            (byte r, byte g, byte b) = GetPixel(paddedBitmap, x + i, y + j);
-                            red += (int)r * Kernel[j + 1, i + 1];
-                            green += (int)g * Kernel[j + 1, i + 1];
-                            blue += (int)b * Kernel[j + 1, i + 1];
-                        }
+                        // If the current pixel is within the offset range, return the original pixel value
+                        (byte r, byte g, byte b) = GetPixel(bitmapIn, x, y);
+                        SetPixel(result, x, y, r, g, b);
                     }
-                    (byte newR, byte newG, byte newB) = transformation(red, green, blue);
-                    SetPixel(result, x, y, newR, newG, newB);
+                    else
+                    {
+                        double red = 0, green = 0, blue = 0;
+                        for (int j = 0; j < kernelHeight; j++)
+                        {
+                            for (int i = 0; i < kernelWidth; i++)
+                            {
+                                (byte r, byte g, byte b) = GetPixel(paddedBitmap, x + i, y + j);
+                                red += (int)r * Kernel[j, i];
+                                green += (int)g * Kernel[j, i];
+                                blue += (int)b * Kernel[j, i];
+                            }
+                        }
+                        (byte newR, byte newG, byte newB) = transformation(red, green, blue);
+                        SetPixel(result, x, y, newR, newG, newB);
+                    }
+
                 }
             }
             return result;
         }
+
 
         private (byte, byte, byte) GetPixel(WriteableBitmap bitmap, int x, int y)
         {
@@ -190,27 +212,6 @@ namespace PhotoShop
                     SetPixel(paddedBitmap, paddedWidth - paddingSize - 1 + i, y, rR, gR, bR); //setting Right
                 }
             }
-
-            //var widthT = paddedBitmap.PixelWidth;
-            //var heightT = paddedBitmap.PixelHeight;
-            //var strideT = widthT * ((paddedBitmap.Format.BitsPerPixel + 7) / 8);
-
-            //var bitmapData = new byte[heightT, strideT]; // 2D array for storing pixel data
-
-            //var rowPixels = new byte[strideT];
-
-            //for (int y = 0; y < heightT; y++)
-            //{
-            //    // Copy one row of pixel data at a time
-            //    paddedBitmap.CopyPixels(new Int32Rect(0, y, widthT, 1), rowPixels, strideT, 0);
-
-            //    // Insert the row into the 2D array
-            //    for (int x = 0; x < strideT; x++)
-            //    {
-            //        bitmapData[y, x] = rowPixels[x];
-            //    }
-            //}
-
             return paddedBitmap;
         }
     }
