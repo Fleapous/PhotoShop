@@ -78,33 +78,49 @@
         <!-- Grid Splitter 2 -->
         <GridSplitter Grid.Row="2" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="AliceBlue" ShowsPreview="True" Width="5"/>
 
-        <!-- Action Box, Window 3 -->
-        <Border Grid.Row="2" Grid.Column="4" BorderBrush="Black" Background="AliceBlue" BorderThickness="1">
-            <TabControl>
-                <!-- Filter Stack -->
-                <TabItem Header="FilterStack">
-                    <ListBox Background="AliceBlue"
-                             x:Name="FilterStack" 
-                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                             ItemsSource="{Binding filterStacks}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <!-- TextBlock to display the name of the item -->
-                                    <TextBlock Text="{Binding Name}"/>
 
-                                    <!-- Button to delete the item -->
-                                    <Button Content="Delete" 
-                                            Click="DeleteButtonClick" 
-                                            Tag="{Binding UniqueIdentifier}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </TabItem>
-            </TabControl>
-        </Border>
+        <Grid Grid.Row="2" Grid.Column="4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="200"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
+            <Border Grid.Row="0" BorderBrush="Black" Background="AliceBlue" BorderThickness="1">
+                <ListBox Background="AliceBlue"
+                x:Name="FilterStack" 
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                ItemsSource="{Binding filterStacks}"
+                SelectionChanged="FilterStack_SelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}"/>
+
+                                <Button Content="Delete" 
+                                Click="DeleteButtonClick" 
+                                Tag="{Binding UniqueIdentifier}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+
+            <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="AliceBlue" ShowsPreview="True" ResizeDirection="Rows" />
+            <!--Kernel and editing section-->
+            <Border Grid.Row="2" BorderBrush="Black" Background="Azure" BorderThickness="1">
+                <StackPanel>
+                    <Label x:Name="FilterNameLabel" Content="filter name" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                    <Button x:Name="GenerateButton" Content="Generate" HorizontalAlignment="Left" VerticalAlignment="Top" Click="GenerateButtonClick"/>
+
+                    <TextBox x:Name="KernelDims" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Width="30" TextAlignment="Center" LostFocus="KernelDims_LostFocus"/>
+               
+
+                    <Grid x:Name="KernelGrid" HorizontalAlignment="Center" Margin="5"/>
+                </StackPanel>
+
+            </Border>
+        </Grid>
     </Grid>
 </Window>

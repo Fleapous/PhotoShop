@@ -27,6 +27,7 @@ namespace PhotoShop
         private WriteableBitmap? originalBitmap { get; set; }
         private List<IFilter> filtersToApply = new List<IFilter>();
         public ObservableCollection<Stack> filterStacks { get; set; }
+        private int currentFilterIndex { get; set; }
 
         public MainWindow()
         {
@@ -49,66 +50,6 @@ namespace PhotoShop
             }
         }
 
-        private void InversionButtonClick(object sender, RoutedEventArgs e)
-        {
-            //checking if bitmap is opened
-            if (originalBitmap == null)
-            {
-                MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            filterStacks.Add(new Stack("Inversion Filter"));
-            filtersToApply.Add(new FunctionFilter(pixel => (Byte)(255 - pixel)));
-                
-            secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
-        }
-
-        private void BrightnessButtonClick(object sender, RoutedEventArgs e)
-        {
-            //checking if bitmap is opened
-            if (originalBitmap == null)
-            {
-                MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            filterStacks.Add(new Stack("Brightness Filter"));
-            filtersToApply.Add(new FunctionFilter(pixel => (byte)Math.Clamp(pixel + 30, 0, 255)));
-            
-
-            secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
-        }
-
-        private void ContrastButtonClick(object sender, RoutedEventArgs e)
-        {
-            //checking if bitmap is opened
-            if (originalBitmap == null)
-            {
-                MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            filterStacks.Add(new Stack("Contrast Filter"));
-            filtersToApply.Add(new FunctionFilter(pixel => (byte)Math.Clamp(pixel * 3, 0, 255)));
-            
-
-            secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
-        }
-
-        private void GammaButtonClick(object sender, RoutedEventArgs e)
-        {
-            //checking if bitmap is opened
-            if (originalBitmap == null)
-            {
-                MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            filterStacks.Add(new Stack("Gamma Filter"));
-            filtersToApply.Add(new FunctionFilter(pixel => (byte)Math.Clamp(Math.Pow(pixel / 255.0, 2) * 255.0, 0, 255)));
-
-
-            secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
-        }
-
         private void DeleteButtonClick(object sender, RoutedEventArgs e)
         {
             var button = (Button)sender;
@@ -125,106 +66,86 @@ namespace PhotoShop
             }
         }
 
-        private void BlurButtonClick(object sender, RoutedEventArgs e)
+        private void FilterStack_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            //checking if bitmap is opened
-            if (originalBitmap == null)
-            {
-                MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            if (FilterStack.SelectedItem == null)
                 return;
+
+            FilterNameLabel.Content = ((Stack)FilterStack.SelectedItem).Name;
+
+            //get the filter from list 
+            var item = filterStacks.FirstOrDefault(f => f.UniqueIdentifier == ((Stack)FilterStack.SelectedItem).UniqueIdentifier);
+            if (item == null)
+                return;
+            //find the index 
+            currentFilterIndex = filterStacks.IndexOf(item);
+            
+
+
+            if (filtersToApply[currentFilterIndex].Kernel == null)
+            {
+                KernelGrid.Children.Clear();
+                KernelGrid.RowDefinitions.Clear();
+                KernelGrid.ColumnDefinitions.Clear();
             }
-            filterStacks.Add(new Stack("Blur Filter"));
-            int[,] blurKernel = {
-                { 1, 1, 1 },
-                { 1, 1, 1 },
-                { 1, 1, 1 }
-            };
+            else
+            {
+                //populate x y values
+                int xValue = filtersToApply[currentFilterIndex].Kernel.GetLength(0);
+                int yValue = filtersToApply[currentFilterIndex].Kernel.GetLength(1);
+                string kernelDims = $"{xValue}, {yValue}";
 
-            ConvLogicDelegate blurTransformation = (r, g, b) => {
-                double newR = Math.Clamp((int)r / 9, 0, 255);
-                double newG = Math.Clamp((int)g / 9, 0, 255);
-                double newB = Math.Clamp((int)b / 9, 0, 255);
-                return ((byte)newR, (byte)newG, (byte)newB);
-            };
+                KernelDims.Text = kernelDims;
 
-            filtersToApply.Add(new ConvolutionalFilter(blurKernel, blurTransformation));
-
-            secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
+                //load the kernel
+                ConstructKernelGrid(filtersToApply[currentFilterIndex]);
+            }
+                
         }
 
-        private void GaussianBlurButtonClick(object sender, RoutedEventArgs e)
+        private void GenerateButtonClick(object sender, RoutedEventArgs e)
         {
-            //checking if bitmap is opened
-            if (originalBitmap == null)
-            {
-                MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            filterStacks.Add(new Stack("Gaussian Blur Filter"));
-            int[,] gaussBlurKernel = new int[3, 3];
-            double sum;
-            gaussBlurKernel = ConvolutionalFilter.MakeGaussKernel(1,1.5, out sum);
-
-            ConvLogicDelegate gaussBlurTransformation = (r, g, b) => {
-                double newR = Math.Clamp((int)r / sum, 0, 255);
-                double newG = Math.Clamp((int)g / sum, 0, 255);
-                double newB = Math.Clamp((int)b / sum, 0, 255);
-                return ((byte)newR, (byte)newG, (byte)newB);
-            };
-
-            filtersToApply.Add(new ConvolutionalFilter(gaussBlurKernel, gaussBlurTransformation));
-
-            secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
+            if(originalBitmap != null) 
+                secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
 
-        private void SharpnessButtonClick(object sender, RoutedEventArgs e)
+        private void KernelDims_LostFocus(object sender, RoutedEventArgs e)
         {
-            //checking if bitmap is opened
-            if (originalBitmap == null)
+            TextBox textBox = (TextBox)sender;
+            string selectedString = textBox.Text;
+            string[] parts = selectedString.Split(',');
+
+            if (parts.Length != 2)
             {
-                MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                MessageBox.Show("Incorrect format. Please enter two integers separated by a comma.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
-            filterStacks.Add(new Stack("Sharpness Filter"));
-            int[,] SharpnessKernel = new int[3, 3];
-            SharpnessKernel = ConvolutionalFilter.MakeSharpnessKernel(3, 3);
-
-            ConvLogicDelegate SharpnessTranformation = (r, g, b) => {
-                double newR = Math.Clamp((int)r, 0, 255);
-                double newG = Math.Clamp((int)g, 0, 255);
-                double newB = Math.Clamp((int)b, 0, 255);
-                return ((byte)newR, (byte)newG, (byte)newB);
-            };
-
-            filtersToApply.Add(new ConvolutionalFilter(SharpnessKernel, SharpnessTranformation));
-
-            secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
-        }
-
-        private void EdgeDetectButtonClick(object sender, RoutedEventArgs e)
-        {
-            //checking if bitmap is opened
-            if (originalBitmap == null)
+            else
             {
-                MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                if (!int.TryParse(parts[0].Trim(), out int xValue) || !int.TryParse(parts[1].Trim(), out int yValue))
+                {
+                    MessageBox.Show("Incorrect format. Please enter two integers separated by a comma.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    // Check if both values are odd and within the range [1, 9]
+                    if (!IsOdd(xValue) || !IsOdd(yValue) || !IsWithinRange(xValue) || !IsWithinRange(yValue))
+                    {
+                        MessageBox.Show("Values must be odd integers within the range [1, 9].", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+
+                    //create the new kerenel with new values
+                    string filterType = filterStacks[currentFilterIndex].Name;
+                    int[,] newKernel = new int[xValue, yValue];
+                    newKernel = ConstructKernelFromType(filterType, xValue, yValue);
+                    filtersToApply[currentFilterIndex].Kernel = newKernel;
+                    ConstructKernelGrid(filtersToApply[currentFilterIndex]);
+
+                }
             }
-            filterStacks.Add(new Stack("Edge detect Filter"));
-            int[,] EdgeDetectKernel = new int[3, 3];
-            EdgeDetectKernel = ConvolutionalFilter.MakeEdgeDetectionKernel(3, 3);
-
-            ConvLogicDelegate EdgeDetectTranformation = (r, g, b) => {
-                double newR = Math.Clamp((int)r, 0, 255);
-                double newG = Math.Clamp((int)g, 0, 255);
-                double newB = Math.Clamp((int)b, 0, 255);
-                return ((byte)newR, (byte)newG, (byte)newB);
-            };
-
-            filtersToApply.Add(new ConvolutionalFilter(EdgeDetectKernel, EdgeDetectTranformation));
-
-            secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
     }
+
+
 
     public class Stack
     {

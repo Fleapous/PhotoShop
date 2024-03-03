@@ -12,10 +12,12 @@ namespace PhotoShop
     public delegate byte FilterLogicDelegate(byte logic);
     public class FunctionFilter : IFilter
     {
+        public int[,]? Kernel { get; set; }
         private readonly FilterLogicDelegate filterLogic;
 
         public FunctionFilter(FilterLogicDelegate filterLogic)
         {
+            Kernel = null;
             this.filterLogic = filterLogic;
         }
         public WriteableBitmap Apply(WriteableBitmap In)

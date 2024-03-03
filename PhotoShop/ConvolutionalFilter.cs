@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Packaging;
 using System.Linq;
 using System.Text;
@@ -13,15 +14,31 @@ namespace PhotoShop
     public delegate (byte, byte, byte) ConvLogicDelegate(double r, double g, double b);
     public class ConvolutionalFilter : IFilter
     {
-        private readonly int[,] kernel;
+        public int[,]? Kernel { get; set; }
         private readonly ConvLogicDelegate transformation;
 
         public ConvolutionalFilter(int[,] kernel, ConvLogicDelegate transformation)
         {
-            this.kernel = kernel;
+            this.Kernel = kernel;
             this.transformation = transformation;
         }
 
+        public static int[,] MakeBlurKernel(int height, int width, out double sum)
+        {
+            // Create a new integer array with the specified height and width
+            int[,] kernel = new int[height, width];
+            sum = 0.0;
+
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    kernel[i, j] = 1;
+                    sum++;
+                }
+            }
+            return kernel;
+        }
         public static int[,] MakeGaussKernel(int radius, double sigma, out double sumO)
         {
             double[,] kernel = new double[2 * radius + 1, 2 * radius + 1];
@@ -104,9 +121,9 @@ namespace PhotoShop
                         for (int i = -1; i <= 1; i++)
                         {
                             (byte r, byte g, byte b) = GetPixel(paddedBitmap, x + i, y + j);
-                            red += (int)r * kernel[j + 1, i + 1];
-                            green += (int)g * kernel[j + 1, i + 1];
-                            blue += (int)b * kernel[j + 1, i + 1];
+                            red += (int)r * Kernel[j + 1, i + 1];
+                            green += (int)g * Kernel[j + 1, i + 1];
+                            blue += (int)b * Kernel[j + 1, i + 1];
                         }
                     }
                     (byte newR, byte newG, byte newB) = transformation(red, green, blue);
@@ -123,7 +140,7 @@ namespace PhotoShop
             int stride = bitmap.PixelWidth * bytesPerPixel;
             byte[] pixel = new byte[bytesPerPixel];
             bitmap.CopyPixels(new Int32Rect(x, y, 1, 1), pixel, stride, 0);
-            return (pixel[2], pixel[1], pixel[0]); // RGB order
+            return (pixel[2], pixel[1], pixel[0]);
         }
 
         private void SetPixel(WriteableBitmap bitmap, int x, int y, byte r, byte g, byte b)
@@ -131,7 +148,7 @@ namespace PhotoShop
             //int bytesPerPixel = (bitmap.Format.BitsPerPixel + 7) / 8;
             int bytesPerPixel = 4;
             int stride = bitmap.PixelWidth * bytesPerPixel;
-            byte[] pixel = { b, g, r, 255}; // RGB order
+            byte[] pixel = { b, g, r, 255};
             bitmap.WritePixels(new Int32Rect(x, y, 1, 1), pixel, stride, 0);
         }
 
@@ -174,27 +191,25 @@ namespace PhotoShop
                 }
             }
 
-            var widthT = paddedBitmap.PixelWidth;
-            var heightT = paddedBitmap.PixelHeight;
-            var strideT = widthT * ((paddedBitmap.Format.BitsPerPixel + 7) / 8);
+            //var widthT = paddedBitmap.PixelWidth;
+            //var heightT = paddedBitmap.PixelHeight;
+            //var strideT = widthT * ((paddedBitmap.Format.BitsPerPixel + 7) / 8);
 
-            var bitmapData = new byte[heightT, strideT]; // 2D array for storing pixel data
+            //var bitmapData = new byte[heightT, strideT]; // 2D array for storing pixel data
 
-            // Temporary array to hold pixel data for a single row
-            var rowPixels = new byte[strideT];
+            //var rowPixels = new byte[strideT];
 
-            // Copy pixel data row by row
-            for (int y = 0; y < heightT; y++)
-            {
-                // Copy one row of pixel data at a time
-                paddedBitmap.CopyPixels(new Int32Rect(0, y, widthT, 1), rowPixels, strideT, 0);
+            //for (int y = 0; y < heightT; y++)
+            //{
+            //    // Copy one row of pixel data at a time
+            //    paddedBitmap.CopyPixels(new Int32Rect(0, y, widthT, 1), rowPixels, strideT, 0);
 
-                // Insert the row into the 2D array
-                for (int x = 0; x < strideT; x++)
-                {
-                    bitmapData[y, x] = rowPixels[x];
-                }
-            }
+            //    // Insert the row into the 2D array
+            //    for (int x = 0; x < strideT; x++)
+            //    {
+            //        bitmapData[y, x] = rowPixels[x];
+            //    }
+            //}
 
             return paddedBitmap;
         }

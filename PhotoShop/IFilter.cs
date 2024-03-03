@@ -10,5 +10,6 @@ namespace PhotoShop
     public interface IFilter
     {
         WriteableBitmap Apply(WriteableBitmap In);
+        int[,]? Kernel { get; set; }
     }
 }
