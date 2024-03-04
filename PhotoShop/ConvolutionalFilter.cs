@@ -160,7 +160,7 @@ namespace PhotoShop
                         {
                             for (int i = 0; i < kernelWidth; i++)
                             {
-                                (byte r, byte g, byte b) = GetPixel(paddedBitmap, x + i, y + j);
+                                (byte r, byte g, byte b) = GetPixel(paddedBitmap, x + i, y + j);//ancor about here
                                 red += (int)r * Kernel[j, i];
                                 green += (int)g * Kernel[j, i];
                                 blue += (int)b * Kernel[j, i];

@@ -33,6 +33,7 @@
         <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5">
             <MenuItem Header="_File">
                 <MenuItem Header="_Open" Click="OpenMenuItem_Click"/>
+                <MenuItem Header="_Save" Click="SaveClick"/>
             </MenuItem>
             <MenuItem Header="Filters">
                 <MenuItem Header="Save" Click="SaveFilterClick"/>
@@ -132,6 +133,7 @@
                             <Label Content="Y Offset:"/>
                             <TextBox x:Name="YOffsetTextBox" Width="50"/>
                         </StackPanel>
+
                     </StackPanel>
 
 
@@ -139,11 +141,22 @@
                         <TextBox x:Name="KernelDims" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center"/>
                         <TextBox x:Name="sigmaValue" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center"  Margin="10,0,0,0"/>
                         <Button x:Name="GenerateNewKernel" Content="kernel" HorizontalAlignment="left" VerticalAlignment="Top" Margin="5" Width="50" Click="GenerateNewKernel_Click"/>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Devisor: "/>
+                            <TextBox x:Name="DevisorField" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center" LostFocus="Devisor_LostFocus"/>
+                        </StackPanel>
+
                     </StackPanel>
 
                     <StackPanel x:Name="FunctionalSettingsPanel" Orientation="Horizontal" Margin="5" Visibility="Collapsed">
-                        <TextBox x:Name="FilterSetting" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center" LostFocus="FilterSetting_LostFocus"/>
-                        
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Filter param" />
+                            <TextBox x:Name="FilterSetting" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center" LostFocus="FilterSetting_LostFocus"/>
+                        </StackPanel>
+
+
+
                     </StackPanel>
 
                     <Grid x:Name="KernelGrid" HorizontalAlignment="Center" Margin="5"/>

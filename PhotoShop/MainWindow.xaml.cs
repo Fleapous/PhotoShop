@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -109,6 +111,10 @@ namespace PhotoShop
 
                 //load the kernel
                 ConstructKernelGrid(filtersToApply[currentFilterIndex]);
+                if(filtersToApply[currentFilterIndex] is ConvolutionalFilter filter)
+                {
+                    DevisorField.Text = filter.Sum.ToString();
+                }
                 
             }
                 
@@ -160,10 +166,14 @@ namespace PhotoShop
 
                     newKernel = ConstructKernelFromType(filterType, xValue, yValue, out sum, sigma);
 
+                    int devisor;
+                    if (!int.TryParse(DevisorField.Text, out devisor))
+                        MessageBox.Show("Invalid input for devisor function value. Please enter a valid number.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+
                     ConvLogicDelegate newTransformation = (r, g, b) => {
-                        double newR = Math.Clamp((int)r / sum, 0, 255);
-                        double newG = Math.Clamp((int)g / sum, 0, 255);
-                        double newB = Math.Clamp((int)b / sum, 0, 255);
+                        double newR = Math.Clamp((int)r / devisor, 0, 255);
+                        double newG = Math.Clamp((int)g / devisor, 0, 255);
+                        double newB = Math.Clamp((int)b / devisor, 0, 255);
                         return ((byte)newR, (byte)newG, (byte)newB);
                     };
 
@@ -197,6 +207,34 @@ namespace PhotoShop
         private void OpenFIlterClick(object sender, RoutedEventArgs e)
         {
             DeSerializeFilterFromFile();
+        }
+
+        private void SaveClick(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            
+            saveFileDialog.Filter = "Image Files (*.png;*.bmp;*.jpg)|*.png;*.bmp;*.jpg";
+            saveFileDialog.FilterIndex = 1;
+            saveFileDialog.RestoreDirectory = true;
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                JpegBitmapEncoder jpg = new JpegBitmapEncoder();
+                jpg.Frames.Add(BitmapFrame.Create((BitmapSource)secondWindowImage.Source));
+                using (Stream stm = File.Create(saveFileDialog.FileName))
+                {
+                    jpg.Save(stm);
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException("File saving canceled by the user.");
+            }
+        }
+
+        private void Devisor_LostFocus(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 
