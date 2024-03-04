@@ -168,7 +168,7 @@ namespace PhotoShop
                     };
 
                     //assighn new settigns to the edited filter
-                    filtersToApply[currentFilterIndex] = new ConvolutionalFilter(newKernel, newTransformation, xOffset, yOffset);
+                    filtersToApply[currentFilterIndex] = new ConvolutionalFilter(newKernel, newTransformation, sum, xOffset, yOffset);
 
                     //re construct kernel grid from new kernel settings 
                     ConstructKernelGrid(filtersToApply[currentFilterIndex]);
@@ -192,6 +192,11 @@ namespace PhotoShop
         private void SaveFilterClick(object sender, RoutedEventArgs e)
         {
             SerializeFilter(filtersToApply[currentFilterIndex], filterStacks[currentFilterIndex].Name);
+        }
+
+        private void OpenFIlterClick(object sender, RoutedEventArgs e)
+        {
+            DeSerializeFilterFromFile();
         }
     }
 

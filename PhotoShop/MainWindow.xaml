@@ -36,6 +36,7 @@
             </MenuItem>
             <MenuItem Header="Filters">
                 <MenuItem Header="Save" Click="SaveFilterClick"/>
+                <MenuItem Header="Open" Click="OpenFIlterClick"/>
             </MenuItem>
         </Menu>
 
@@ -56,6 +57,7 @@
                         <Button x:Name="GaussianBlurButton" Content="GaussianBlur" Click="GaussianBlurButtonClick"/>
                         <Button x:Name="SharpnessButton" Content="Sharpness" Click="SharpnessButtonClick"/>
                         <Button x:Name="EdgeDetectButton" Content="EdgeDetect" Click="EdgeDetectButtonClick"/>
+                        <Button x:Name="EmbossButton" Content="Emboss" Click="EmbossButtonClick"/>
                     </StackPanel>
                 </TabItem>
             </TabControl>

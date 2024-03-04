@@ -31,7 +31,7 @@ namespace PhotoShop
                 return ((byte)newR, (byte)newG, (byte)newB);
             };
 
-            filtersToApply.Add(new ConvolutionalFilter(blurKernel, blurTransformation, 0, 0));
+            filtersToApply.Add(new ConvolutionalFilter(blurKernel, blurTransformation, 9, 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -56,7 +56,7 @@ namespace PhotoShop
                 return ((byte)newR, (byte)newG, (byte)newB);
             };
 
-            filtersToApply.Add(new ConvolutionalFilter(gaussBlurKernel, gaussBlurTransformation, 0, 0));
+            filtersToApply.Add(new ConvolutionalFilter(gaussBlurKernel, gaussBlurTransformation, sum, 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -80,7 +80,7 @@ namespace PhotoShop
                 return ((byte)newR, (byte)newG, (byte)newB);
             };
 
-            filtersToApply.Add(new ConvolutionalFilter(SharpnessKernel, SharpnessTranformation, 0, 0));
+            filtersToApply.Add(new ConvolutionalFilter(SharpnessKernel, SharpnessTranformation, 1, 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -104,7 +104,31 @@ namespace PhotoShop
                 return ((byte)newR, (byte)newG, (byte)newB);
             };
 
-            filtersToApply.Add(new ConvolutionalFilter(EdgeDetectKernel, EdgeDetectTranformation, 0, 0));
+            filtersToApply.Add(new ConvolutionalFilter(EdgeDetectKernel, EdgeDetectTranformation, 1, 0, 0));
+
+            secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
+        }
+
+        private void EmbossButtonClick(object sender, RoutedEventArgs e)
+        {
+            //checking if bitmap is opened
+            if (originalBitmap == null)
+            {
+                MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            filterStacks.Add(new Stack("Emboss Filter"));
+            int[,] EmbossKernel = new int[3, 3];
+            EmbossKernel = ConvolutionalFilter.MakeEmbossKernel(3, 3);
+
+            ConvLogicDelegate EmbossTranformation = (r, g, b) => {
+                double newR = Math.Clamp((int)r, 0, 255);
+                double newG = Math.Clamp((int)g, 0, 255);
+                double newB = Math.Clamp((int)b, 0, 255);
+                return ((byte)newR, (byte)newG, (byte)newB);
+            };
+
+            filtersToApply.Add(new ConvolutionalFilter(EmbossKernel, EmbossTranformation, 1, 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }

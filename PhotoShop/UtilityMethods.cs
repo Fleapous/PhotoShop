@@ -80,6 +80,9 @@ namespace PhotoShop
                 case "Edge detect Filter":
                     kernel = ConvolutionalFilter.MakeEdgeDetectionKernel(x, y);
                     break;
+                case "Emboss Filter":
+                    kernel = ConvolutionalFilter.MakeEmbossKernel(x, y);
+                    break;
                 default:
                     kernel = ConvolutionalFilter.MakeBlurKernel(x, y, out sum);
                     break;
@@ -125,6 +128,7 @@ namespace PhotoShop
                         name = name,
                         convolutionalFilter.XOffset,
                         convolutionalFilter.YOffset,
+                        sum = convolutionalFilter.Sum,
                         Kernel = SerializeKernel(convolutionalFilter.Kernel)
                     };
                 }
@@ -152,6 +156,68 @@ namespace PhotoShop
                 File.WriteAllText(saveFileDialog.FileName, jsonString);
             }
         }
+
+        public void DeSerializeFilterFromFile()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.RestoreDirectory = true;
+
+            if (openFileDialog.ShowDialog() ==  true)
+            {
+                string jsonString = File.ReadAllText(openFileDialog.FileName);
+                DeserializeFilter(jsonString);
+            }
+            else
+            {
+                throw new InvalidOperationException("File selection canceled by the user.");
+            }
+        }
+
+        public void DeserializeFilter(string jsonString)
+        {
+            using (JsonDocument document = JsonDocument.Parse(jsonString))
+            {
+                JsonElement root = document.RootElement;
+
+                string filterType = root.GetProperty("type").GetString();
+
+                switch (filterType)
+                {
+                    case "ConvolutionalFilter":
+                        double sum = root.GetProperty("sum").GetDouble();
+
+                        ConvLogicDelegate Transformation = (r, g, b) => {
+                            double newR = Math.Clamp((int)r / sum, 0, 255);
+                            double newG = Math.Clamp((int)g / sum, 0, 255);
+                            double newB = Math.Clamp((int)b / sum, 0, 255);
+                            return ((byte)newR, (byte)newG, (byte)newB);
+                        };
+
+                        int[,] kernel = DeSerializeKernel(root.GetProperty("Kernel"));
+                        ConvolutionalFilter convFilter = new ConvolutionalFilter(kernel, Transformation, sum, root.GetProperty("XOffset").GetInt32(), root.GetProperty("YOffset").GetInt32());
+                        filtersToApply.Add(convFilter);
+                        filterStacks.Add(new Stack(root.GetProperty("name").GetString()));
+                        break;
+
+                    case "FunctionFilter":
+                        double value = root.GetProperty("value").GetDouble();
+                        string functionFilterType = root.GetProperty("name").GetString();
+                        int xOffset = root.GetProperty("XOffset").GetInt32();
+                        int yOffset = root.GetProperty("YOffset").GetInt32();
+
+                        FunctionFilter funcFilter = ConstructFunctionFilterFromType(functionFilterType, value, xOffset, yOffset);
+                        filtersToApply.Add(funcFilter);
+                        filterStacks.Add(new Stack(root.GetProperty("name").GetString()));
+                        break;
+
+                    default:
+                        throw new ArgumentException("Unknown filter type");
+                }
+            }
+        }
+
         public int[][] SerializeKernel(int[,] array)
         {
             int row = array.GetLength(0);
@@ -170,25 +236,25 @@ namespace PhotoShop
 
             return serializedArray;
         }
-
-        public int[,] DeSerializeKernel(int[][] SerializedArray)
+        private int[,] DeSerializeKernel(JsonElement kernelElement)
         {
-            int row = SerializedArray.Length;
-            int col = SerializedArray[0].Length;
+            JsonElement kernelArray = kernelElement;
 
-            int[,] array = new int[row, col];
+            int rowCount = kernelArray.GetArrayLength();
+            int columnCount = kernelArray[0].GetArrayLength();
 
-            for (int i = 0; i < row; i++)
+            int[,] kernel = new int[rowCount, columnCount];
+
+            for (int i = 0; i < rowCount; i++)
             {
-                for (int j = 0; j < col; j++)
+                for (int j = 0; j < columnCount; j++)
                 {
-                    array[i, j] = SerializedArray[i][j];
+                    kernel[i, j] = kernelArray[i][j].GetInt32();
                 }
             }
 
-            return array;
+            return kernel;
         }
-
 
         private bool IsOdd(int number)
         {

@@ -18,20 +18,21 @@ namespace PhotoShop
         public int[,]? Kernel { get; set; }
         public int XOffset { get; set; }
         public int YOffset { get; set; }
+        public double Sum { get; set; }
 
         private readonly ConvLogicDelegate transformation;
 
-        public ConvolutionalFilter(int[,] kernel, ConvLogicDelegate transformation, int xOffset = 0, int yOffset = 0)
+        public ConvolutionalFilter(int[,] kernel, ConvLogicDelegate transformation, double sum = 1, int xOffset = 0, int yOffset = 0)
         {
             this.Kernel = kernel;
             this.transformation = transformation;
             this.XOffset = xOffset;
             this.YOffset = yOffset;
+            this.Sum = sum;
         }
 
         public static int[,] MakeBlurKernel(int height, int width, out double sum)
         {
-            // Create a new integer array with the specified height and width
             int[,] kernel = new int[height, width];
             sum = 0.0;
 
@@ -109,6 +110,28 @@ namespace PhotoShop
 
             return kernel;
         }
+        public static int[,] MakeEmbossKernel(int height, int width)
+        {
+            int[,] kernel = new int[height, width];
+
+            for (int j = 0; j < width; j++)
+            {
+                kernel[0, j] = -1;
+                kernel[height - 1, j] = 1;
+            }
+
+            for (int i = 1; i < height - 1; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    kernel[i, j] = 0;
+                }
+            }
+
+            kernel[height / 2, width / 2] = 1;
+
+            return kernel;
+        }
 
         public WriteableBitmap Apply(WriteableBitmap bitmapIn)
         {
@@ -117,18 +140,16 @@ namespace PhotoShop
             int kernelWidth = Kernel.GetLength(1);
             int kernelHeight = Kernel.GetLength(0);
 
-            // Pad the input bitmap to accommodate the kernel
             WriteableBitmap paddedBitmap = AddPadding(bitmapIn, kernelWidth / 2);
 
-            // Apply convolution operation
             WriteableBitmap result = new WriteableBitmap(width, height, bitmapIn.DpiX, bitmapIn.DpiY, bitmapIn.Format, bitmapIn.Palette);
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
+                    //check for offset
                     if (x < XOffset || y < YOffset)
                     {
-                        // If the current pixel is within the offset range, return the original pixel value
                         (byte r, byte g, byte b) = GetPixel(bitmapIn, x, y);
                         SetPixel(result, x, y, r, g, b);
                     }
