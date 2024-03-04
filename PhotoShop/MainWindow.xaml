@@ -136,7 +136,7 @@
 
                     </StackPanel>
 
-
+                    <!--Convolutional settings-->
                     <StackPanel x:Name="ConvolutionalSettingsPanel" Orientation="Horizontal" Margin="5" Visibility="Collapsed">
                         <TextBox x:Name="KernelDims" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center"/>
                         <TextBox x:Name="sigmaValue" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center"  Margin="10,0,0,0"/>
@@ -144,11 +144,17 @@
 
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Devisor: "/>
-                            <TextBox x:Name="DevisorField" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center" LostFocus="Devisor_LostFocus"/>
+                            <TextBox x:Name="DevisorField" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Offset: "/>
+                            <TextBox x:Name="OffsetField" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center"/>
                         </StackPanel>
 
                     </StackPanel>
-
+                    
+                    <!--Functional settings-->
                     <StackPanel x:Name="FunctionalSettingsPanel" Orientation="Horizontal" Margin="5" Visibility="Collapsed">
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Filter param" />

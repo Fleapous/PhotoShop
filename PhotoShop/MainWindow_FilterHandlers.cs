@@ -24,14 +24,7 @@ namespace PhotoShop
                 { 1, 1, 1 }
             };
 
-            ConvLogicDelegate blurTransformation = (r, g, b) => {
-                double newR = Math.Clamp((int)r / 9, 0, 255);
-                double newG = Math.Clamp((int)g / 9, 0, 255);
-                double newB = Math.Clamp((int)b / 9, 0, 255);
-                return ((byte)newR, (byte)newG, (byte)newB);
-            };
-
-            filtersToApply.Add(new ConvolutionalFilter(blurKernel, blurTransformation, 9, 0, 0));
+            filtersToApply.Add(new ConvolutionalFilter(blurKernel, 9, 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -49,14 +42,7 @@ namespace PhotoShop
             double sum;
             gaussBlurKernel = ConvolutionalFilter.MakeGaussKernel(1, 1.5, out sum);
 
-            ConvLogicDelegate gaussBlurTransformation = (r, g, b) => {
-                double newR = Math.Clamp((int)r / sum, 0, 255);
-                double newG = Math.Clamp((int)g / sum, 0, 255);
-                double newB = Math.Clamp((int)b / sum, 0, 255);
-                return ((byte)newR, (byte)newG, (byte)newB);
-            };
-
-            filtersToApply.Add(new ConvolutionalFilter(gaussBlurKernel, gaussBlurTransformation, sum, 0, 0));
+            filtersToApply.Add(new ConvolutionalFilter(gaussBlurKernel, sum, 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -73,14 +59,7 @@ namespace PhotoShop
             int[,] SharpnessKernel = new int[3, 3];
             SharpnessKernel = ConvolutionalFilter.MakeSharpnessKernel(3, 3);
 
-            ConvLogicDelegate SharpnessTranformation = (r, g, b) => {
-                double newR = Math.Clamp((int)r, 0, 255);
-                double newG = Math.Clamp((int)g, 0, 255);
-                double newB = Math.Clamp((int)b, 0, 255);
-                return ((byte)newR, (byte)newG, (byte)newB);
-            };
-
-            filtersToApply.Add(new ConvolutionalFilter(SharpnessKernel, SharpnessTranformation, 1, 0, 0));
+            filtersToApply.Add(new ConvolutionalFilter(SharpnessKernel, 1, 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -97,14 +76,7 @@ namespace PhotoShop
             int[,] EdgeDetectKernel = new int[3, 3];
             EdgeDetectKernel = ConvolutionalFilter.MakeEdgeDetectionKernel(3, 3);
 
-            ConvLogicDelegate EdgeDetectTranformation = (r, g, b) => {
-                double newR = Math.Clamp((int)r, 0, 255);
-                double newG = Math.Clamp((int)g, 0, 255);
-                double newB = Math.Clamp((int)b, 0, 255);
-                return ((byte)newR, (byte)newG, (byte)newB);
-            };
-
-            filtersToApply.Add(new ConvolutionalFilter(EdgeDetectKernel, EdgeDetectTranformation, 1, 0, 0));
+            filtersToApply.Add(new ConvolutionalFilter(EdgeDetectKernel, 1, 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -121,14 +93,7 @@ namespace PhotoShop
             int[,] EmbossKernel = new int[3, 3];
             EmbossKernel = ConvolutionalFilter.MakeEmbossKernel(3, 3);
 
-            ConvLogicDelegate EmbossTranformation = (r, g, b) => {
-                double newR = Math.Clamp((int)r, 0, 255);
-                double newG = Math.Clamp((int)g, 0, 255);
-                double newB = Math.Clamp((int)b, 0, 255);
-                return ((byte)newR, (byte)newG, (byte)newB);
-            };
-
-            filtersToApply.Add(new ConvolutionalFilter(EmbossKernel, EmbossTranformation, 1, 0, 0));
+            filtersToApply.Add(new ConvolutionalFilter(EmbossKernel, 1, 0, 0));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }

@@ -114,6 +114,7 @@ namespace PhotoShop
                 if(filtersToApply[currentFilterIndex] is ConvolutionalFilter filter)
                 {
                     DevisorField.Text = filter.Sum.ToString();
+                    OffsetField.Text = filter.Offset.ToString();
                 }
                 
             }
@@ -166,19 +167,17 @@ namespace PhotoShop
 
                     newKernel = ConstructKernelFromType(filterType, xValue, yValue, out sum, sigma);
 
+                    //Get offset value
+                    int Offset;
+                    if (!int.TryParse(OffsetField.Text, out Offset))
+                        MessageBox.Show("Invalid input for Offset value. Please enter a valid number.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+
                     int devisor;
                     if (!int.TryParse(DevisorField.Text, out devisor))
-                        MessageBox.Show("Invalid input for devisor function value. Please enter a valid number.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-
-                    ConvLogicDelegate newTransformation = (r, g, b) => {
-                        double newR = Math.Clamp((int)r / devisor, 0, 255);
-                        double newG = Math.Clamp((int)g / devisor, 0, 255);
-                        double newB = Math.Clamp((int)b / devisor, 0, 255);
-                        return ((byte)newR, (byte)newG, (byte)newB);
-                    };
+                        MessageBox.Show("Invalid input for devisor value. Please enter a valid number.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
 
                     //assighn new settigns to the edited filter
-                    filtersToApply[currentFilterIndex] = new ConvolutionalFilter(newKernel, newTransformation, sum, xOffset, yOffset);
+                    filtersToApply[currentFilterIndex] = new ConvolutionalFilter(newKernel, devisor, xOffset, yOffset, Offset);
 
                     //re construct kernel grid from new kernel settings 
                     ConstructKernelGrid(filtersToApply[currentFilterIndex]);
@@ -230,11 +229,6 @@ namespace PhotoShop
             {
                 throw new InvalidOperationException("File saving canceled by the user.");
             }
-        }
-
-        private void Devisor_LostFocus(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 

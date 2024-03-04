@@ -12,23 +12,24 @@ using System.Xml.Linq;
 
 namespace PhotoShop
 {
-    public delegate (byte, byte, byte) ConvLogicDelegate(double r, double g, double b);
+    //public delegate (byte, byte, byte) ConvLogicDelegate(double r, double g, double b);
     public class ConvolutionalFilter : IFilter
     {
         public int[,]? Kernel { get; set; }
         public int XOffset { get; set; }
         public int YOffset { get; set; }
         public double Sum { get; set; }
+        public int Offset { get; set; }
 
-        private readonly ConvLogicDelegate transformation;
+        //private readonly ConvLogicDelegate transformation;
 
-        public ConvolutionalFilter(int[,] kernel, ConvLogicDelegate transformation, double sum = 1, int xOffset = 0, int yOffset = 0)
+        public ConvolutionalFilter(int[,] kernel, double sum = 1, int xOffset = 0, int yOffset = 0, int offset = 0)
         {
             this.Kernel = kernel;
-            this.transformation = transformation;
             this.XOffset = xOffset;
             this.YOffset = yOffset;
             this.Sum = sum;
+            this.Offset = offset;
         }
 
         public static int[,] MakeBlurKernel(int height, int width, out double sum)
@@ -166,7 +167,9 @@ namespace PhotoShop
                                 blue += (int)b * Kernel[j, i];
                             }
                         }
-                        (byte newR, byte newG, byte newB) = transformation(red, green, blue);
+                        byte newR = (byte)Math.Clamp(((int)red / Sum) + Offset, 0, 255);
+                        byte newG = (byte)Math.Clamp(((int)green / Sum) + Offset, 0, 255);
+                        byte newB = (byte)Math.Clamp(((int)blue / Sum) + Offset, 0, 255);
                         SetPixel(result, x, y, newR, newG, newB);
                     }
 

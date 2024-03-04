@@ -129,7 +129,8 @@ namespace PhotoShop
                         convolutionalFilter.XOffset,
                         convolutionalFilter.YOffset,
                         sum = convolutionalFilter.Sum,
-                        Kernel = SerializeKernel(convolutionalFilter.Kernel)
+                        Kernel = SerializeKernel(convolutionalFilter.Kernel),
+                        offset = convolutionalFilter.Offset,
                     };
                 }
                 else if (filter is FunctionFilter functionFilter)
@@ -188,15 +189,14 @@ namespace PhotoShop
                     case "ConvolutionalFilter":
                         double sum = root.GetProperty("sum").GetDouble();
 
-                        ConvLogicDelegate Transformation = (r, g, b) => {
-                            double newR = Math.Clamp((int)r / sum, 0, 255);
-                            double newG = Math.Clamp((int)g / sum, 0, 255);
-                            double newB = Math.Clamp((int)b / sum, 0, 255);
-                            return ((byte)newR, (byte)newG, (byte)newB);
-                        };
-
                         int[,] kernel = DeSerializeKernel(root.GetProperty("Kernel"));
-                        ConvolutionalFilter convFilter = new ConvolutionalFilter(kernel, Transformation, sum, root.GetProperty("XOffset").GetInt32(), root.GetProperty("YOffset").GetInt32());
+                        ConvolutionalFilter convFilter = new ConvolutionalFilter(
+                            kernel,
+                            sum,
+                            root.GetProperty("XOffset").GetInt32(), 
+                            root.GetProperty("YOffset").GetInt32(),
+                            root.GetProperty("offset").GetInt32());
+
                         filtersToApply.Add(convFilter);
                         filterStacks.Add(new Stack(root.GetProperty("name").GetString()));
                         break;
