@@ -61,6 +61,13 @@
                         <Button x:Name="EmbossButton" Content="Emboss" Click="EmbossButtonClick"/>
                     </StackPanel>
                 </TabItem>
+                <TabItem Header="Image">
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="GrayScale" Content="GrayScale" Click="GrayScale_Click"/>
+                        <Button x:Name="Dithering" Content="Dithering" Click="Dithering_Click"/>
+                        <Button x:Name="Octree" Content="Octree" Click="Octree_Click"/>
+                    </StackPanel>
+                </TabItem>
             </TabControl>
         </ToolBar>
 

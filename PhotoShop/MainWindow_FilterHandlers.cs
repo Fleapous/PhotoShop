@@ -157,5 +157,50 @@ namespace PhotoShop
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
+
+        private void Dithering_Click(object sender, RoutedEventArgs e)
+        {
+            //checking if bitmap is opened
+            if (originalBitmap == null)
+            {
+                MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            filterStacks.Add(new Stack("dithering Filter"));
+            filtersToApply.Add(new Dithering());
+
+            secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
+        }
+
+        private void GrayScale_Click(object sender, RoutedEventArgs e)
+        {
+            //checking if bitmap is opened
+            if (originalBitmap == null)
+            {
+                MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            filterStacks.Add(new Stack("Gray Scale"));
+            filtersToApply.Add(new GrayScale());
+
+            secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
+        }
+
+        private void Octree_Click(object sender, RoutedEventArgs e)
+        {
+            //checking if bitmap is opened
+            if (originalBitmap == null)
+            {
+                MessageBox.Show("Please select an image before applying filters.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            filterStacks.Add(new Stack("Octree"));
+            filtersToApply.Add(new OctTreeFilter());
+
+            secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
+        }
     }
 }

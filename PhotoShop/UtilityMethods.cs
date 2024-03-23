@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace PhotoShop
 {
@@ -264,5 +265,7 @@ namespace PhotoShop
         {
             return number >= 1 && number <= 9;
         }
+        
+
     }
 }
