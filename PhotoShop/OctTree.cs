@@ -26,7 +26,7 @@ namespace PhotoShop
             Byte[] pixels = new Byte[stride * pxHeight];
             In.CopyPixels(pixels, stride, 0);
 
-            OctTree octTree = new OctTree(null, 0, 80);
+            OctTree octTree = new OctTree(null, 0, 8);
 
 
             for (int y = 0; y < pxHeight; y++)

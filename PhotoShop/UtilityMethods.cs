@@ -145,9 +145,34 @@ namespace PhotoShop
                         value = value
                     };
                 }
+                else if (filter is OctTreeFilter octTreeFilter) 
+                {
+                    serializableData = new
+                    {
+                        type = "Octree",
+                        name = name
+                    };
+                }
+                else if (filter is Dithering ditheringFilter)
+                {
+                    serializableData = new
+                    { 
+                        type = "Dithering",
+                        name = name
+                    };
+
+                }
+                else if(filter is GrayScale grayScale)
+                {
+                    serializableData = new
+                    {
+                        type = "GrayScale",
+                        name = name
+                    };
+                }
                 else
                 {
-                    throw new ArgumentException("filter error");
+                    throw new NotImplementedException();
                 }
 
                 string jsonString = JsonSerializer.Serialize(serializableData, new JsonSerializerOptions
@@ -213,6 +238,21 @@ namespace PhotoShop
                         filterStacks.Add(new Stack(root.GetProperty("name").GetString()));
                         break;
 
+                    case "Octree":
+                        OctTreeFilter filter = new OctTreeFilter();
+                        filtersToApply.Add(filter);
+                        filterStacks.Add(new Stack(root.GetProperty("name").GetString()));
+                        break;
+                    case "Dithering":
+                        Dithering dithering = new Dithering();
+                        filtersToApply.Add(dithering);
+                        filterStacks.Add(new Stack(root.GetProperty("name").GetString()));
+                        break;
+                    case "GrayScale":
+                        GrayScale grayScale = new GrayScale();
+                        filtersToApply.Add(grayScale);
+                        filterStacks.Add(new Stack(root.GetProperty("name").GetString()));
+                        break;
                     default:
                         throw new ArgumentException("Unknown filter type");
                 }
