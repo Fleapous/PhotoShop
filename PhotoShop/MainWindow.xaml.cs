@@ -55,10 +55,11 @@ namespace PhotoShop
             YOffsetTextBox.Text = filtersToApply[currentFilterIndex].YOffset.ToString();
 
 
-            if (filtersToApply[currentFilterIndex].Kernel == null)
+            if (filtersToApply[currentFilterIndex] is FunctionFilter functionFilter)
             {
                 //hide conv ettings
                 ConvolutionalSettingsPanel.Visibility = Visibility.Collapsed;
+                ImageSettingsPanel.Visibility = Visibility.Collapsed;
                 FunctionalSettingsPanel.Visibility = Visibility.Visible;
 
                 KernelGrid.Children.Clear();
@@ -66,25 +67,44 @@ namespace PhotoShop
                 KernelGrid.ColumnDefinitions.Clear();
                 
             }
-            else
+            else if (filtersToApply[currentFilterIndex] is ConvolutionalFilter convFilter)
             {
                 //hide functunal settings
                 ConvolutionalSettingsPanel.Visibility = Visibility.Visible;
+                ImageSettingsPanel.Visibility = Visibility.Collapsed;
                 FunctionalSettingsPanel.Visibility = Visibility.Collapsed;
 
                 //populate x y values
-                int xValue = filtersToApply[currentFilterIndex].Kernel.GetLength(0);
-                int yValue = filtersToApply[currentFilterIndex].Kernel.GetLength(1);
+                int xValue = convFilter.Kernel.GetLength(0);
+                int yValue = convFilter.Kernel.GetLength(1);
                 string kernelDims = $"{xValue}, {yValue}";
 
                 KernelDims.Text = kernelDims;
 
                 //load the kernel
-                ConstructKernelGrid(filtersToApply[currentFilterIndex]);
-                if(filtersToApply[currentFilterIndex] is ConvolutionalFilter filter)
+                ConstructKernelGrid(convFilter);
+                DevisorField.Text = convFilter.Sum.ToString();
+                OffsetField.Text = convFilter.Offset.ToString();
+                
+            } 
+            else
+            {
+                //hide other settings
+                ImageSettingsPanel.Visibility = Visibility.Visible;
+                FunctionalSettingsPanel.Visibility = Visibility.Collapsed;
+                ConvolutionalSettingsPanel.Visibility = Visibility.Collapsed;
+
+                KernelGrid.Children.Clear();
+                KernelGrid.RowDefinitions.Clear();
+                KernelGrid.ColumnDefinitions.Clear();
+
+                if(filtersToApply[currentFilterIndex] is Dithering ditheringFilter)
                 {
-                    DevisorField.Text = filter.Sum.ToString();
-                    OffsetField.Text = filter.Offset.ToString();
+                    Imagesetting.Text = ditheringFilter.k.ToString();
+                }
+                else if(filtersToApply[currentFilterIndex] is OctTreeFilter octreFilter)
+                {
+                    Imagesetting.Text = octreFilter.colors.ToString();
                 }
                 
             }
@@ -104,7 +124,21 @@ namespace PhotoShop
             filtersToApply[currentFilterIndex] = ConstructFunctionFilterFromType(filterStacks[currentFilterIndex].Name, value, xOffset, yOffset);
         }
 
+        private void GenerateImageFilter_Click(object sender, RoutedEventArgs e)
+        {
+            int value;
+            if (!int.TryParse(Imagesetting.Text, out value))
+                MessageBox.Show("Invalid input for filter function value. Please enter a valid number.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
 
+            if (filtersToApply[currentFilterIndex] is Dithering ditheringFilter)
+            {
+                ditheringFilter.k = value;
+            }
+            else if (filtersToApply[currentFilterIndex] is OctTreeFilter octTreeFilter)
+            {
+                octTreeFilter.colors = value;
+            }
+        }
     }
 
 

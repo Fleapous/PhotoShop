@@ -168,7 +168,7 @@ namespace PhotoShop
             }
 
             filterStacks.Add(new Stack("dithering Filter"));
-            filtersToApply.Add(new Dithering());
+            filtersToApply.Add(new Dithering(2));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }
@@ -198,7 +198,7 @@ namespace PhotoShop
             }
 
             filterStacks.Add(new Stack("Octree"));
-            filtersToApply.Add(new OctTreeFilter());
+            filtersToApply.Add(new OctTreeFilter(8));
 
             secondWindowImage.Source = FunctionFilters.ApplyFilters(filtersToApply, originalBitmap);
         }

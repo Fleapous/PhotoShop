@@ -150,7 +150,8 @@ namespace PhotoShop
                     serializableData = new
                     {
                         type = "Octree",
-                        name = name
+                        name = name,
+                        color = octTreeFilter.colors
                     };
                 }
                 else if (filter is Dithering ditheringFilter)
@@ -158,7 +159,8 @@ namespace PhotoShop
                     serializableData = new
                     { 
                         type = "Dithering",
-                        name = name
+                        name = name,
+                        k = ditheringFilter.k
                     };
 
                 }
@@ -239,12 +241,15 @@ namespace PhotoShop
                         break;
 
                     case "Octree":
-                        OctTreeFilter filter = new OctTreeFilter();
+                        int color = root.GetProperty("color").GetInt32();
+                        OctTreeFilter filter = new OctTreeFilter(color);
                         filtersToApply.Add(filter);
                         filterStacks.Add(new Stack(root.GetProperty("name").GetString()));
+
                         break;
                     case "Dithering":
-                        Dithering dithering = new Dithering();
+                        int k = root.GetProperty("k").GetInt32();
+                        Dithering dithering = new Dithering(k);
                         filtersToApply.Add(dithering);
                         filterStacks.Add(new Stack(root.GetProperty("name").GetString()));
                         break;

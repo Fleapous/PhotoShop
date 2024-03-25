@@ -167,9 +167,14 @@
                             <Label Content="Filter param" />
                             <TextBox x:Name="FilterSetting" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center" LostFocus="FilterSetting_LostFocus"/>
                         </StackPanel>
-
-
-
+                    </StackPanel>
+                    <!--Image settings-->
+                    <StackPanel x:Name="ImageSettingsPanel" Orientation="Horizontal" Margin="5" Visibility="Collapsed">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Image param" />
+                            <TextBox x:Name="Imagesetting" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" TextAlignment="Center"/>
+                            <Button x:Name="GenerateImageFilter" Content="ImageButton" HorizontalAlignment="left" VerticalAlignment="Top" Margin="5" Width="50" Click="GenerateImageFilter_Click"/>
+                        </StackPanel>
                     </StackPanel>
 
                     <Grid x:Name="KernelGrid" HorizontalAlignment="Center" Margin="5"/>

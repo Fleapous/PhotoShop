@@ -14,6 +14,12 @@ namespace PhotoShop
         public int[,]? Kernel { get; set; }
         public int XOffset { get; set; }
         public int YOffset { get; set; }
+        public int colors { get; set; }
+
+        public OctTreeFilter(int colors)
+        {
+            this.colors = colors;
+        }
 
         public WriteableBitmap Apply(WriteableBitmap In)
         {
@@ -26,7 +32,7 @@ namespace PhotoShop
             Byte[] pixels = new Byte[stride * pxHeight];
             In.CopyPixels(pixels, stride, 0);
 
-            OctTree octTree = new OctTree(null, 0, 8);
+            OctTree octTree = new OctTree(null, 0, colors);
 
 
             for (int y = 0; y < pxHeight; y++)
